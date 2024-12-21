@@ -1,17 +1,21 @@
 import pandas as pd
-from dotenv import load_dotenv
 import os
 
+from dotenv import load_dotenv
 load_dotenv()
 
+from shared.utilities import read_driver
+
 def read_drivers():
+
     global cities
-    cities = pd.read_csv(os.getenv('R_DATA_PATH') + 'housing/drivers/cities.csv', sep = '\t')
+    cities = read_driver(p_app = 'housing', p_name = 'cities')
+    
 
 def read_hpi_canada():
     global teranet 
     teranet = pd.read_csv(os.getenv('R_DATA_PATH') + 'housing/raw/Cdn Econ Data/teranet.csv')
-
+    
 def get_hpi_canada_city(p_city = 'Ottawa'):
     
     read_drivers()
@@ -54,6 +58,8 @@ def preprocess_hpi_canada():
 
     # Combine all results into a single DataFrame
     combined_results = pd.concat(result_list, ignore_index = True)
+
+    combined_results['date'] = pd.to_datetime('01-' + combined_results['date'], format = '%d-%b-%Y')
 
     return combined_results
 
