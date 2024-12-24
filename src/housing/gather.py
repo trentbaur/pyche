@@ -1,25 +1,25 @@
 import pandas as pd
-import os
+from os import getenv
 
 from dotenv import load_dotenv
 load_dotenv()
 
-from shared.utilities import read_driver
+from shared.utilities import read_driver, data_cache
 
 def read_drivers():
 
-    global cities
-    cities = read_driver(p_app = 'housing', p_name = 'cities')
-    
+    read_driver(p_app = 'housing', p_name = 'cities')
 
 def read_hpi_canada():
-    global teranet 
-    teranet = pd.read_csv(os.getenv('R_DATA_PATH') + 'housing/raw/Cdn Econ Data/teranet.csv')
+    
+    return pd.read_csv(os.getenv('R_DATA_PATH') + 'housing/raw/Cdn Econ Data/teranet.csv')
     
 def get_hpi_canada_city(p_city = 'Ottawa'):
     
     read_drivers()
-    read_hpi_canada()
+    teranet = read_hpi_canada()
+
+    cities = data_cache['cities']
 
     city_code = cities.loc[cities['city'] == p_city, 'city_code'].iloc[0]
 
@@ -35,13 +35,14 @@ def get_hpi_canada_city(p_city = 'Ottawa'):
     hpi['city'] = p_city
 
     return hpi[hpi['index'] > 0]
-
 #   get_hpi_canada_city()
 
 def preprocess_hpi_canada():
+
     read_drivers()
-    read_hpi_canada()
     
+    cities = data_cache['cities']
+
     cdn_cities = cities.loc[cities['country'] == 'Canada', 'city']
 
     # Initialize an empty list to store the results
@@ -62,11 +63,9 @@ def preprocess_hpi_canada():
     combined_results['date'] = pd.to_datetime('01-' + combined_results['date'], format = '%d-%b-%Y')
 
     return combined_results
-
 #   preprocess_hpi_canada()
 
 def write_hpi_canada():
 
     preprocess_hpi_canada().to_csv(path_or_buf = os.getenv('PYCHE_DATA_PATH') + 'housing/working/hpi_canada.csv', index = False)
-    
 #   write_hpi_canada()

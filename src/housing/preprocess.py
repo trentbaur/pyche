@@ -9,6 +9,10 @@ def read_hpi():
     hpi_can = pd.read_csv(f'{os.getenv('PYCHE_DATA_PATH')}/housing/working/hpi_canada.csv')
     hpi_can['country'] = 'Canada'
 
+    hpi_can['date'] = pd.to_datetime(hpi_can['date'])
+    hpi_can['year'] = hpi_can['date'].dt.year
+    hpi_can['month'] = hpi_can['date'].dt.month
+
     return hpi_can
 #   read_hpi()
 
@@ -26,6 +30,7 @@ def process_hpi_diffs():
     changes['countraw12'] = changes.groupby('city')['count'].shift(12)
 
     return changes
+#   process_hpi_diffs()
 
 def write_hpi_diffs():
 
