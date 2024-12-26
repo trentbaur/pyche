@@ -19,10 +19,6 @@ def load_city_melted(
 ):
 
     hpi_diffs = data_cache['hpi_diffs']
-    
-    hpi_diffs['date'] = pd.to_datetime(hpi_diffs['date'])
-    hpi_diffs['year'] = hpi_diffs['date'].dt.year
-    hpi_diffs['month'] = hpi_diffs['date'].dt.month
 
     start_date = pd.to_datetime(f'{p_start_year}-01-01')
 
@@ -36,15 +32,18 @@ def load_city_melted(
 
 def load_all_cities_melted(
     p_variable = 'change1'
-    , p_date = hpi_diffs['date'].max()
+    , p_date = None
 ):
+
+    hpi_diffs = data_cache['hpi_diffs']
+
+    if p_date is None:
+        p_date = hpi_diffs['date'].max()
+
     count_data = hpi_diffs[
         (hpi_diffs['date'].dt.year < p_date.year) 
         & (hpi_diffs['date'].dt.month == p_date.month)
         ][['date', 'city', 'index', p_variable]]
-
-    count_data['year'] = count_data['date'].dt.year
-    count_data['month'] = count_data['date'].dt.month
 
     count_data.rename(columns = {p_variable: 'value'}, inplace = True)
 
@@ -80,6 +79,8 @@ def get_city_percentiles(
     , p_month_count = 12
 ):
 
+    hpi_diffs = data_cache['hpi_diffs']
+
     if p_date is None:
         p_date = hpi_diffs['date'].max()
 
@@ -103,5 +104,5 @@ def get_city_percentiles(
 
     return result_list
 
-get_city_percentiles()
-get_city_percentiles(p_date = datetime.strptime('2022-05-01'))
+#   get_city_percentiles()
+#   get_city_percentiles(p_date = datetime.strptime('2022-05-01', '%Y-%m-%d'))
